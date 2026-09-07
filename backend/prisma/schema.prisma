@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TaskStatus {
+  TODO
+  DOING
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_REASSIGNED
+  STATUS_CHANGED
+  DUE_SOON
+  OVERDUE
+  TASK_UPDATED
+}
+
+model User {
+  id           String         @id @default(cuid())
+  name         String
+  email        String         @unique
+  passwordHash String
+  role         Role           @default(USER)
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  createdTasks Task[]         @relation("TaskCreator")
+  assignedTasks Task[]        @relation("TaskAssignee")
+  notifications Notification[]
+}
+
+model Task {
+  id           String       @id @default(cuid())
+  title        String
+  description  String       @default("")
+  status       TaskStatus   @default(TODO)
+  priority     TaskPriority @default(MEDIUM)
+  tags         String       @default("[]") // JSON array stored as string for SQLite
+  dueDate      DateTime?
+  position     Int          @default(0)
+  creatorId    String
+  assigneeId   String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  creator      User         @relation("TaskCreator", fields: [creatorId], references: [id])
+  assignee     User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  notifications Notification[]
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  message   String
+  isRead    Boolean          @default(false)
+  userId    String
+  taskId    String?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task      Task?            @relation(fields: [taskId], references: [id], onDelete: SetNull)
+}
