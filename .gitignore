@@ -1,11 +1,14 @@
 # Dependencies
 node_modules/
 
-# Env
+# Env (keep *.example tracked)
 .env
 .env.local
 backend/.env
 frontend/.env.local
+!.env.example
+!backend/.env.example
+!frontend/.env.example
 
 # Build
 backend/dist/
