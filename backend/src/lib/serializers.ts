@@ -1,18 +1,5 @@
 import type { NotificationType, Prisma, Task, TaskPriority, TaskStatus, User } from "@prisma/client";
 
-export function parseTags(raw: string): string[] {
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map(String) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function stringifyTags(tags: string[] | undefined): string {
-  return JSON.stringify(tags ?? []);
-}
-
 export function statusToApi(status: TaskStatus): string {
   return status.toLowerCase();
 }
@@ -68,7 +55,7 @@ export function serializeTask(task: TaskWithPeople) {
     description: task.description,
     status: statusToApi(task.status),
     priority: priorityToApi(task.priority),
-    tags: parseTags(task.tags),
+    tags: task.tags ?? [],
     dueDate: task.dueDate,
     position: task.position,
     creatorId: task.creatorId,

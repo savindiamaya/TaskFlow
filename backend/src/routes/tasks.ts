@@ -8,7 +8,6 @@ import {
   priorityFromApi,
   serializeTask,
   statusFromApi,
-  stringifyTags,
   taskInclude,
 } from "../lib/serializers.js";
 import type { AuthRequest } from "../types.js";
@@ -84,7 +83,7 @@ router.get("/", async (req: AuthRequest, res) => {
     }
 
     if (tag && tag !== "all") {
-      and.push({ tags: { contains: `"${tag}"` } });
+      and.push({ tags: { has: tag } });
     }
 
     const now = new Date();
@@ -221,7 +220,7 @@ router.post("/", async (req: AuthRequest, res) => {
         description: body.description ?? "",
         status: statusFromApi(body.status),
         priority: priorityFromApi(body.priority),
-        tags: stringifyTags(body.tags),
+        tags: body.tags ?? [],
         dueDate: body.dueDate ? new Date(body.dueDate) : null,
         creatorId: req.user!.id,
         assigneeId,
@@ -268,7 +267,7 @@ router.patch("/:id", async (req: AuthRequest, res) => {
     if (body.title !== undefined) data.title = body.title.trim();
     if (body.description !== undefined) data.description = body.description;
     if (body.priority !== undefined) data.priority = priorityFromApi(body.priority);
-    if (body.tags !== undefined) data.tags = stringifyTags(body.tags);
+    if (body.tags !== undefined) data.tags = body.tags;
     if (body.dueDate !== undefined) data.dueDate = body.dueDate ? new Date(body.dueDate) : null;
     if (body.position !== undefined) data.position = body.position;
 

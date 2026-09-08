@@ -21,48 +21,33 @@ A modern Trello-like task board built as **separate frontend and backend project
 
 Normal users who register go to **`/dashboard`** instead.
 
-## Connecting MongoDB (optional)
+## Connecting MongoDB Atlas (required)
 
-The app currently uses **SQLite** via Prisma (`DATABASE_URL="file:./dev.db"`). To use MongoDB:
+This project uses **MongoDB Atlas** through Prisma.
 
-1. Create a free cluster on [MongoDB Atlas](https://www.mongodb.com/atlas) (or run MongoDB locally).
-2. Copy your connection string, for example:
+1. In Atlas → **Connect** → choose **Drivers** → **Node.js**.
+2. Copy the connection string. It looks like:
+
+```text
+mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/?retryWrites=true&w=majority
+```
+
+3. Replace `USERNAME` / `PASSWORD` with your DB user credentials.
+4. Add a database name before `?`, e.g. `/taskflow?`:
+
+```text
+mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/taskflow?retryWrites=true&w=majority
+```
+
+5. Put it in `backend/.env`:
 
 ```env
-DATABASE_URL="mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/taskflow?retryWrites=true&w=majority"
+DATABASE_URL="mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/taskflow?retryWrites=true&w=majority"
 ```
 
-3. In `backend/prisma/schema.prisma`, change the datasource and IDs for MongoDB:
+6. In Atlas → **Network Access**, allow your IP (or `0.0.0.0/0` for development).
 
-```prisma
-datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
-}
-
-model User {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  // ...other fields
-}
-
-model Task {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  creatorId  String   @db.ObjectId
-  assigneeId String?  @db.ObjectId
-  // ...
-}
-
-model Notification {
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId String  @db.ObjectId
-  taskId String? @db.ObjectId
-  // ...
-}
-```
-
-4. Prisma **enums** work with MongoDB, but relation fields need `@db.ObjectId` on foreign keys.
-5. Update `backend/.env` with the MongoDB `DATABASE_URL`.
-6. Re-run:
+7. Then run:
 
 ```bash
 cd backend
@@ -72,7 +57,7 @@ npm run db:seed
 npm run dev
 ```
 
-> Tip: keep SQLite for local demos; switch to MongoDB/PostgreSQL for deployment.
+After that, users/tasks/notifications are stored in MongoDB Atlas.
 
 ## Live demo credentials
 
@@ -88,7 +73,7 @@ Admins are **not** created via registration — only through the seed script / d
 | Layer | Stack |
 |-------|--------|
 | Frontend | Next.js (App Router), TypeScript, Tailwind CSS, @dnd-kit, Socket.IO client, Recharts |
-| Backend | Express.js, TypeScript, Prisma ORM, SQLite (swap to PostgreSQL for production), JWT, bcrypt, Socket.IO, Zod |
+| Backend | Express.js, TypeScript, Prisma ORM, **MongoDB Atlas**, JWT, bcrypt, Socket.IO, Zod |
 | Architecture | Separate `frontend/` and `backend/` projects communicating over REST + WebSockets |
 
 ## Features
@@ -134,6 +119,7 @@ Admins are **not** created via registration — only through the seed script / d
 ```bash
 cd backend
 cp .env.example .env
+# Edit .env → set MongoDB Atlas DATABASE_URL
 npm install
 npm run setup      # prisma generate + db push + seed admin/demo
 npm run dev        # http://localhost:5000
