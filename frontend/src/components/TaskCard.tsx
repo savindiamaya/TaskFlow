@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Calendar, GripVertical, UserPlus } from "lucide-react";
+import { Calendar, GripVertical, Pencil, Trash2, UserPlus } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { formatDate, isDueSoon, isOverdue } from "@/lib/utils";
 
@@ -18,12 +18,14 @@ export function TaskCard({
   isAdmin,
   onOpen,
   onClaim,
+  onDelete,
 }: {
   task: Task;
   currentUserId: string;
   isAdmin: boolean;
   onOpen: () => void;
   onClaim: () => void;
+  onDelete?: (task: Task) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
@@ -37,7 +39,9 @@ export function TaskCard({
 
   const overdue = isOverdue(task.dueDate, task.status);
   const soon = isDueSoon(task.dueDate, task.status);
-  const canClaim = !task.assigneeId && (!isAdmin || true) && currentUserId;
+  const canClaim = !task.assigneeId && currentUserId;
+  const canManage =
+    isAdmin || task.creatorId === currentUserId || task.assigneeId === currentUserId;
 
   return (
     <article
@@ -47,8 +51,7 @@ export function TaskCard({
         border: "1px solid var(--line)",
         background: "var(--bg-elevated)",
       }}
-      className="cursor-pointer rounded-2xl p-3"
-      onClick={onOpen}
+      className="rounded-2xl p-3"
     >
       <div className="flex items-start gap-2">
         <button
@@ -56,7 +59,6 @@ export function TaskCard({
           style={{ color: "var(--ink-muted)", background: "none", border: 0 }}
           {...attributes}
           {...listeners}
-          onClick={(e) => e.stopPropagation()}
           aria-label="Drag task"
         >
           <GripVertical size={16} />
@@ -106,18 +108,40 @@ export function TaskCard({
               </span>
             )}
           </div>
-          {canClaim && !task.assigneeId && (
-            <button
-              className="btn btn-secondary mt-3"
-              style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onClaim();
-              }}
-            >
-              <UserPlus size={14} /> Assign to me
-            </button>
-          )}
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {canClaim && (
+              <button
+                className="btn btn-secondary"
+                style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                onClick={onClaim}
+              >
+                <UserPlus size={14} /> Assign to me
+              </button>
+            )}
+            {canManage && (
+              <>
+                <button
+                  className="btn btn-secondary"
+                  style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                  onClick={onOpen}
+                >
+                  <Pencil size={14} /> Edit
+                </button>
+                {onDelete && (
+                  <button
+                    className="btn btn-danger"
+                    style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                    onClick={() => {
+                      if (confirm(`Delete task "${task.title}"?`)) onDelete(task);
+                    }}
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </article>

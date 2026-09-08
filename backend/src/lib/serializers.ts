@@ -50,6 +50,7 @@ export function serializeUser(user: User) {
     email: user.email,
     role: user.role === "ADMIN" ? "admin" : "user",
     isActive: user.isActive,
+    avatarUrl: user.avatarUrl,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };

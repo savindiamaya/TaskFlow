@@ -2,6 +2,78 @@
 
 A modern Trello-like task board built as **separate frontend and backend projects**, with role-based access, drag-and-drop status columns, advanced filtering, notifications, dark mode, and dashboard analytics.
 
+## How to log in as Admin
+
+1. Make sure the backend was seeded (`npm run setup` inside `backend/`).
+2. Open http://localhost:3000/auth
+3. Sign in with the **seeded admin** account (admins cannot register from the UI):
+
+| Field | Value |
+|-------|-------|
+| Email | `admin@taskflow.com` |
+| Password | `Admin@12345` |
+
+4. After login you are redirected to **`/admin`** (Admin Dashboard).
+5. Use the top nav:
+   - **Dashboard** → totals + charts
+   - **Users** → search / activate / deactivate / view user tasks
+   - **Board** → full kanban for all tasks (`/admin/board`)
+
+Normal users who register go to **`/dashboard`** instead.
+
+## Connecting MongoDB (optional)
+
+The app currently uses **SQLite** via Prisma (`DATABASE_URL="file:./dev.db"`). To use MongoDB:
+
+1. Create a free cluster on [MongoDB Atlas](https://www.mongodb.com/atlas) (or run MongoDB locally).
+2. Copy your connection string, for example:
+
+```env
+DATABASE_URL="mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/taskflow?retryWrites=true&w=majority"
+```
+
+3. In `backend/prisma/schema.prisma`, change the datasource and IDs for MongoDB:
+
+```prisma
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  // ...other fields
+}
+
+model Task {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  creatorId  String   @db.ObjectId
+  assigneeId String?  @db.ObjectId
+  // ...
+}
+
+model Notification {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId String  @db.ObjectId
+  taskId String? @db.ObjectId
+  // ...
+}
+```
+
+4. Prisma **enums** work with MongoDB, but relation fields need `@db.ObjectId` on foreign keys.
+5. Update `backend/.env` with the MongoDB `DATABASE_URL`.
+6. Re-run:
+
+```bash
+cd backend
+npx prisma generate
+npx prisma db push
+npm run db:seed
+npm run dev
+```
+
+> Tip: keep SQLite for local demos; switch to MongoDB/PostgreSQL for deployment.
+
 ## Live demo credentials
 
 | Role | Email | Password |

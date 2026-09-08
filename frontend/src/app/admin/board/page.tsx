@@ -9,10 +9,10 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { api } from "@/lib/api";
 import type { User } from "@/lib/types";
 
-export default function UserDashboardPage() {
+export default function AdminBoardPage() {
   const { user, loading, isAdmin } = useAuth();
   const router = useRouter();
-  const { notifications, setNotifications } = useNotifications(!!user && !isAdmin);
+  const { notifications, setNotifications } = useNotifications(!!user && isAdmin);
   const [users, setUsers] = useState<User[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -22,30 +22,30 @@ export default function UserDashboardPage() {
       router.replace("/auth");
       return;
     }
-    if (isAdmin) router.replace("/admin");
+    if (!isAdmin) router.replace("/dashboard");
   }, [loading, user, isAdmin, router]);
 
   useEffect(() => {
-    if (!user || isAdmin) return;
-    void api<{ users: User[] }>("/users/assignable")
+    if (!user || !isAdmin) return;
+    void api<{ users: User[] }>("/users")
       .then((data) => setUsers(data.users))
       .catch(() => {});
   }, [user, isAdmin]);
 
-  if (loading || !user || isAdmin) {
+  if (loading || !user || !isAdmin) {
     return <div className="p-10 text-center animate-pulse-soft">Loading…</div>;
   }
 
   return (
     <AppShell
-      title="My Board"
+      title="All Tasks Board"
       notifications={notifications}
       onNotificationsChange={setNotifications}
       onNewTask={() => setDialogOpen(true)}
     >
       <TaskBoard
         currentUserId={user.id}
-        isAdmin={false}
+        isAdmin
         users={users}
         dialogOpen={dialogOpen}
         setDialogOpen={setDialogOpen}

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { passwordError } from "@/lib/password";
+import { PasswordField } from "@/components/PasswordField";
 
 function AuthForm() {
   const params = useSearchParams();
@@ -20,11 +22,22 @@ function AuthForm() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (mode === "register") {
+      const pwErr = passwordError(password);
+      if (pwErr) {
+        setError(pwErr);
+        return;
+      }
+    }
+
     setBusy(true);
     try {
-      if (mode === "login") await login(email, password);
-      else await register(name, email, password);
-      router.replace("/dashboard");
+      const user =
+        mode === "login"
+          ? await login(email, password)
+          : await register(name, email, password);
+      router.replace(user.role === "admin" ? "/admin" : "/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -43,8 +56,8 @@ function AuthForm() {
         </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--ink-muted)" }}>
           {mode === "login"
-            ? "Sign in to your board."
-            : "Normal users register here. Admins are seeded."}
+            ? "Sign in to continue to your workspace."
+            : "Register as a normal user. Admin accounts are created by seeding only."}
         </p>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
@@ -64,24 +77,19 @@ function AuthForm() {
               required
             />
           </div>
-          <div>
-            <label className="label">Password</label>
-            <input
-              className="field"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
-              required
-            />
-          </div>
+          <PasswordField
+            value={password}
+            onChange={setPassword}
+            showRules={mode === "register"}
+            label="Password"
+          />
           {error && (
             <p className="text-sm" style={{ color: "var(--danger)" }}>
               {error}
             </p>
           )}
           <button className="btn btn-primary w-full" disabled={busy}>
-            {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Register"}
+            {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
           </button>
         </form>
 
@@ -90,20 +98,14 @@ function AuthForm() {
           <button
             className="font-semibold"
             style={{ color: "var(--brand)", background: "none", border: 0, cursor: "pointer" }}
-            onClick={() => setMode(mode === "login" ? "register" : "login")}
+            onClick={() => {
+              setMode(mode === "login" ? "register" : "login");
+              setError("");
+            }}
           >
-            {mode === "login" ? "Create one" : "Sign in"}
+            {mode === "login" ? "Create account" : "Sign in"}
           </button>
         </p>
-
-        <div
-          className="mt-6 rounded-xl p-3 text-xs"
-          style={{ background: "var(--bg-muted)", color: "var(--ink-muted)" }}
-        >
-          <strong>Demo admin:</strong> admin@taskflow.com / Admin@12345
-          <br />
-          <strong>Demo user:</strong> demo@taskflow.com / Demo@12345
-        </div>
       </div>
     </div>
   );

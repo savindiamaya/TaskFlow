@@ -3,18 +3,17 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
-import { TaskBoard } from "@/components/TaskBoard";
+import { StatsPanel } from "@/components/StatsPanel";
 import { useAuth } from "@/lib/auth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { api } from "@/lib/api";
-import type { User } from "@/lib/types";
+import type { Stats } from "@/lib/types";
 
-export default function UserDashboardPage() {
+export default function UserStatsPage() {
   const { user, loading, isAdmin } = useAuth();
   const router = useRouter();
   const { notifications, setNotifications } = useNotifications(!!user && !isAdmin);
-  const [users, setUsers] = useState<User[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -27,8 +26,8 @@ export default function UserDashboardPage() {
 
   useEffect(() => {
     if (!user || isAdmin) return;
-    void api<{ users: User[] }>("/users/assignable")
-      .then((data) => setUsers(data.users))
+    void api<{ stats: Stats }>("/tasks/stats")
+      .then((data) => setStats(data.stats))
       .catch(() => {});
   }, [user, isAdmin]);
 
@@ -38,18 +37,11 @@ export default function UserDashboardPage() {
 
   return (
     <AppShell
-      title="My Board"
+      title="My Stats"
       notifications={notifications}
       onNotificationsChange={setNotifications}
-      onNewTask={() => setDialogOpen(true)}
     >
-      <TaskBoard
-        currentUserId={user.id}
-        isAdmin={false}
-        users={users}
-        dialogOpen={dialogOpen}
-        setDialogOpen={setDialogOpen}
-      />
+      {stats ? <StatsPanel stats={stats} /> : <p>Loading stats…</p>}
     </AppShell>
   );
 }

@@ -16,8 +16,8 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string) => Promise<User>;
   logout: () => void;
   refresh: () => Promise<void>;
 }
@@ -57,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     setToken(data.token);
     setUser(data.user);
+    return data.user;
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
@@ -66,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     setToken(data.token);
     setUser(data.user);
+    return data.user;
   }, []);
 
   const logout = useCallback(() => {

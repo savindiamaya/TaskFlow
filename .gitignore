@@ -19,6 +19,7 @@ frontend/out/
 backend/prisma/*.db
 backend/prisma/*.db-journal
 **/*.db
+backend/uploads/
 
 # OS / IDE
 .DS_Store

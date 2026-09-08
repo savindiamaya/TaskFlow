@@ -43,3 +43,30 @@ export async function api<T>(
   }
   return data as T;
 }
+
+export async function apiForm<T>(path: string, formData: FormData): Promise<T> {
+  const token = getToken();
+  const headers: HeadersInit = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(data.message || "Request failed", res.status);
+  }
+  return data as T;
+}
+
+export function assetUrl(path?: string | null) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = API_URL.replace(/\/api$/, "");
+  return `${base}${path}`;
+}

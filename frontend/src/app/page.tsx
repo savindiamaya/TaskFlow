@@ -50,7 +50,7 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) router.replace("/dashboard");
+    if (!loading && user) router.replace(user.role === "admin" ? "/admin" : "/dashboard");
   }, [loading, user, router]);
 
   return (

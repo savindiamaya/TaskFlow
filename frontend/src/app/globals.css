@@ -1,47 +1,49 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap");
 
 @import "tailwindcss";
 
 :root,
 [data-theme="light"] {
-  --bg: #f3f0ea;
-  --bg-elevated: #fffcf7;
-  --bg-muted: #e8e2d8;
-  --ink: #1c1914;
-  --ink-muted: #5c564c;
-  --line: #d5cdc0;
-  --brand: #0f6b5c;
-  --brand-soft: #d8efe9;
-  --accent: #c45c26;
-  --accent-soft: #f7e4d8;
-  --danger: #b42318;
-  --danger-soft: #fde8e6;
-  --ok: #1f7a4c;
-  --ok-soft: #e2f5ea;
-  --warn: #9a6700;
-  --warn-soft: #fff3cd;
-  --shadow: 0 18px 50px rgba(28, 25, 20, 0.08);
-  --radius: 18px;
+  --bg: #eef3f8;
+  --bg-elevated: #ffffff;
+  --bg-muted: #e2eaf3;
+  --ink: #0f172a;
+  --ink-muted: #64748b;
+  --line: #d7e2ee;
+  --brand: #0ea5a4;
+  --brand-strong: #0f766e;
+  --brand-soft: #d5f5f2;
+  --accent: #2563eb;
+  --accent-soft: #dbe7ff;
+  --danger: #e11d48;
+  --danger-soft: #ffe4ea;
+  --ok: #059669;
+  --ok-soft: #d1fae5;
+  --warn: #d97706;
+  --warn-soft: #ffedd5;
+  --shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+  --radius: 16px;
 }
 
 [data-theme="dark"] {
-  --bg: #12141a;
-  --bg-elevated: #1a1e27;
-  --bg-muted: #242a36;
-  --ink: #f2eee6;
-  --ink-muted: #a8a093;
-  --line: #323948;
-  --brand: #3ecfba;
-  --brand-soft: #163832;
-  --accent: #f0a06a;
-  --accent-soft: #3a2a1f;
-  --danger: #ff7b72;
-  --danger-soft: #3a1d1d;
-  --ok: #56d364;
-  --ok-soft: #16301f;
-  --warn: #e3b341;
-  --warn-soft: #332a12;
-  --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  --bg: #0b1220;
+  --bg-elevated: #121a2b;
+  --bg-muted: #1b263b;
+  --ink: #e8eef8;
+  --ink-muted: #94a3b8;
+  --line: #243247;
+  --brand: #2dd4bf;
+  --brand-strong: #14b8a6;
+  --brand-soft: #12352f;
+  --accent: #60a5fa;
+  --accent-soft: #1e3050;
+  --danger: #fb7185;
+  --danger-soft: #3a1822;
+  --ok: #34d399;
+  --ok-soft: #123528;
+  --warn: #fbbf24;
+  --warn-soft: #3a2c12;
+  --shadow: 0 16px 44px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -55,13 +57,20 @@ body {
 }
 
 body {
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "Manrope", system-ui, sans-serif;
   background:
-    radial-gradient(1200px 600px at 10% -10%, color-mix(in srgb, var(--brand) 18%, transparent), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%),
-    var(--bg);
+    radial-gradient(1000px 520px at -5% -10%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 55%),
+    radial-gradient(900px 480px at 110% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 50%),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 88%, white), var(--bg));
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="dark"] body {
+  background:
+    radial-gradient(1000px 520px at -5% -10%, color-mix(in srgb, var(--brand) 16%, transparent), transparent 55%),
+    radial-gradient(900px 480px at 110% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 50%),
+    var(--bg);
 }
 
 a {
@@ -77,15 +86,16 @@ textarea {
 }
 
 .display {
-  font-family: "Fraunces", Georgia, serif;
+  font-family: "Sora", "Manrope", system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .surface {
-  background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+  background: color-mix(in srgb, var(--bg-elevated) 94%, transparent);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 
 .btn {
@@ -93,12 +103,12 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  border-radius: 999px;
+  border-radius: 12px;
   border: 1px solid transparent;
-  padding: 0.65rem 1.15rem;
-  font-weight: 600;
+  padding: 0.62rem 1.05rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .btn:hover {
@@ -112,8 +122,9 @@ textarea {
 }
 
 .btn-primary {
-  background: var(--brand);
+  background: linear-gradient(135deg, var(--brand), var(--brand-strong));
   color: white;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--brand) 35%, transparent);
 }
 
 .btn-secondary {
@@ -128,8 +139,17 @@ textarea {
 }
 
 .btn-danger {
-  background: var(--danger-soft);
-  color: var(--danger);
+  background: var(--danger);
+  color: white;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--danger) 30%, transparent);
+}
+
+.btn-logout {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  color: white;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  box-shadow: 0 10px 22px rgba(225, 29, 72, 0.28);
 }
 
 .field {
@@ -144,14 +164,14 @@ textarea {
 
 .field:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 20%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
 }
 
 .label {
   display: block;
   margin-bottom: 0.35rem;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink-muted);
 }
 
@@ -162,9 +182,23 @@ textarea {
   border-radius: 999px;
   padding: 0.2rem 0.55rem;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 2px solid color-mix(in srgb, var(--brand) 35%, white);
+  background: var(--brand-soft);
+}
+
+.avatar-lg {
+  width: 112px;
+  height: 112px;
 }
 
 @keyframes rise-in {

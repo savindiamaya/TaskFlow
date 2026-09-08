@@ -135,47 +135,56 @@ router.get("/stats", async (req: AuthRequest, res) => {
   const now = new Date();
 
   const baseWhere = isAdmin ? {} : { OR: [{ assigneeId: userId }, { creatorId: userId }] };
+  const scopedAssignee = isAdmin ? {} : { assigneeId: userId };
 
-  const [myTasks, completed, overdue, byStatus, byPriority] = await Promise.all([
-    prisma.task.count({
-      where: isAdmin ? {} : { assigneeId: userId },
-    }),
-    prisma.task.count({
-      where: {
-        ...(isAdmin ? {} : { assigneeId: userId }),
-        status: "DONE",
-      },
-    }),
-    prisma.task.count({
-      where: {
-        ...(isAdmin ? {} : { assigneeId: userId }),
-        dueDate: { lt: now },
-        status: { not: "DONE" },
-      },
-    }),
-    prisma.task.groupBy({
-      by: ["status"],
-      where: baseWhere,
-      _count: true,
-    }),
-    prisma.task.groupBy({
-      by: ["priority"],
-      where: isAdmin ? {} : { assigneeId: userId },
-      _count: true,
-    }),
-  ]);
+  const [myTasks, completed, overdue, byStatus, byPriority, totalUsers, totalTasks, highPriority] =
+    await Promise.all([
+      prisma.task.count({
+        where: isAdmin ? {} : { assigneeId: userId },
+      }),
+      prisma.task.count({
+        where: {
+          ...scopedAssignee,
+          status: "DONE",
+        },
+      }),
+      prisma.task.count({
+        where: {
+          ...scopedAssignee,
+          dueDate: { lt: now },
+          status: { not: "DONE" },
+        },
+      }),
+      prisma.task.groupBy({
+        by: ["status"],
+        where: baseWhere,
+        _count: true,
+      }),
+      prisma.task.groupBy({
+        by: ["priority"],
+        where: scopedAssignee,
+        _count: true,
+      }),
+      isAdmin ? prisma.user.count() : Promise.resolve(0),
+      isAdmin ? prisma.task.count() : Promise.resolve(0),
+      prisma.task.count({
+        where: {
+          ...scopedAssignee,
+          priority: "HIGH",
+        },
+      }),
+    ]);
 
   return res.json({
     stats: {
       myTasks,
       completed,
       overdue,
-      byStatus: Object.fromEntries(
-        byStatus.map((s) => [s.status.toLowerCase(), s._count])
-      ),
-      byPriority: Object.fromEntries(
-        byPriority.map((p) => [p.priority.toLowerCase(), p._count])
-      ),
+      totalUsers,
+      totalTasks: isAdmin ? totalTasks : myTasks,
+      highPriority,
+      byStatus: Object.fromEntries(byStatus.map((s) => [s.status.toLowerCase(), s._count])),
+      byPriority: Object.fromEntries(byPriority.map((p) => [p.priority.toLowerCase(), p._count])),
     },
   });
 });
@@ -248,6 +257,12 @@ router.patch("/:id", async (req: AuthRequest, res) => {
     if (!existing) return res.status(404).json({ message: "Task not found" });
 
     const isAdmin = req.user!.role === "ADMIN";
+    const isOwner =
+      existing.creatorId === req.user!.id || existing.assigneeId === req.user!.id;
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ message: "You can only edit your own tasks" });
+    }
+
     const data: Prisma.TaskUpdateInput = {};
 
     if (body.title !== undefined) data.title = body.title.trim();
@@ -384,8 +399,12 @@ router.delete("/:id", async (req: AuthRequest, res) => {
   if (!existing) return res.status(404).json({ message: "Task not found" });
 
   const isAdmin = req.user!.role === "ADMIN";
-  if (!isAdmin && existing.creatorId !== req.user!.id) {
-    return res.status(403).json({ message: "You can only delete tasks you created" });
+  const canDelete =
+    isAdmin ||
+    existing.creatorId === req.user!.id ||
+    existing.assigneeId === req.user!.id;
+  if (!canDelete) {
+    return res.status(403).json({ message: "You can only delete your own tasks" });
   }
 
   await prisma.task.delete({ where: { id: req.params.id } });

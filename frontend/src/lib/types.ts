@@ -9,6 +9,7 @@ export interface User {
   email: string;
   role: UserRole;
   isActive: boolean;
+  avatarUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -53,6 +54,9 @@ export interface Stats {
   myTasks: number;
   completed: number;
   overdue: number;
+  totalUsers?: number;
+  totalTasks?: number;
+  highPriority?: number;
   byStatus: Record<string, number>;
   byPriority: Record<string, number>;
 }

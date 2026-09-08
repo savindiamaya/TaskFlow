@@ -1,5 +1,7 @@
 import "dotenv/config";
 import http from "http";
+import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
@@ -31,6 +33,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use("/uploads", express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "../uploads")));
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", service: "taskflow-api" });

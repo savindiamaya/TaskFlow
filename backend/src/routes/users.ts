@@ -1,16 +1,30 @@
 import { Router } from "express";
 import { z } from "zod";
+import type { Prisma } from "@prisma/client";
 import prisma from "../lib/prisma.js";
 import { authenticate, requireAdmin } from "../middleware/auth.js";
-import { serializeUser } from "../lib/serializers.js";
+import { serializeTask, serializeUser, taskInclude } from "../lib/serializers.js";
 import type { AuthRequest } from "../types.js";
 
 const router = Router();
 
 router.use(authenticate);
 
-router.get("/", requireAdmin, async (_req, res) => {
-  const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" } });
+router.get("/", requireAdmin, async (req, res) => {
+  const search = String(req.query.search || "").trim();
+  const where: Prisma.UserWhereInput = search
+    ? {
+        OR: [
+          { name: { contains: search } },
+          { email: { contains: search } },
+        ],
+      }
+    : {};
+
+  const users = await prisma.user.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+  });
   return res.json({ users: users.map(serializeUser) });
 });
 
@@ -18,15 +32,25 @@ router.get("/assignable", async (_req, res) => {
   const users = await prisma.user.findMany({
     where: { isActive: true },
     orderBy: { name: "asc" },
-    select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true, updatedAt: true, passwordHash: true },
   });
+  return res.json({ users: users.map(serializeUser) });
+});
+
+router.get("/:id/tasks", requireAdmin, async (req, res) => {
+  const user = await prisma.user.findUnique({ where: { id: req.params.id } });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const tasks = await prisma.task.findMany({
+    where: {
+      OR: [{ assigneeId: user.id }, { creatorId: user.id }],
+    },
+    include: taskInclude,
+    orderBy: { updatedAt: "desc" },
+  });
+
   return res.json({
-    users: users.map((u) =>
-      serializeUser({
-        ...u,
-        passwordHash: "",
-      })
-    ),
+    user: serializeUser(user),
+    tasks: tasks.map(serializeTask),
   });
 });
 

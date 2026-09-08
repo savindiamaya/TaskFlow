@@ -19,16 +19,7 @@ export function FilterBar({
   }
 
   return (
-    <div className="surface grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-4">
-      <div className="xl:col-span-2">
-        <label className="label">Search</label>
-        <input
-          className="field"
-          placeholder="Search title or description…"
-          value={filters.search || ""}
-          onChange={(e) => patch({ search: e.target.value })}
-        />
-      </div>
+    <div className="surface grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
       <div>
         <label className="label">Status</label>
         <select
