@@ -49,13 +49,24 @@ type TaskWithPeople = Task & {
 };
 
 export function serializeTask(task: TaskWithPeople) {
+  let parsedTags: string[] = [];
+  if (Array.isArray(task.tags)) {
+    parsedTags = task.tags as string[];
+  } else if (typeof task.tags === "string" && task.tags) {
+    try {
+      parsedTags = JSON.parse(task.tags);
+    } catch {
+      parsedTags = task.tags.split(",").filter(Boolean);
+    }
+  }
+
   return {
     id: task.id,
     title: task.title,
     description: task.description,
     status: statusToApi(task.status),
     priority: priorityToApi(task.priority),
-    tags: task.tags ?? [],
+    tags: parsedTags,
     dueDate: task.dueDate,
     position: task.position,
     creatorId: task.creatorId,

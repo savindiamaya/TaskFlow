@@ -1,0 +1,39 @@
+================================================================================
+TASKFLOW - ASSIGNMENT FINAL SUBMISSION
+================================================================================
+
+1. Candidate Contact Information:
+----------------------------------
+- Full Name: Savindi Amaya
+- Email: [Your Email Address Here]
+- Phone: [Your Phone Number Here]
+- GitHub Profile: https://github.com/savindiamaya
+- LinkedIn: [Your LinkedIn Profile URL Here]
+
+
+2. GitHub Repository URL:
+--------------------------
+- Repository Link: https://github.com/savindiamaya/TaskFlow.git
+  (Or your new GitHub repo link if you push to another account)
+
+
+3. Live Deployed Application URLs:
+-----------------------------------
+- Frontend (Vercel): [Your Deployed Frontend URL e.g. https://taskflow-app.vercel.app]
+- Backend API (Render): [Your Deployed Backend URL e.g. https://taskflow-api.onrender.com]
+
+
+4. Administrator Login Credentials:
+------------------------------------
+- Role: Administrator
+- Email: admin@taskflow.com
+- Password: Admin@12345
+
+
+5. Demo User Credentials:
+--------------------------
+- Role: Standard User
+- Email: demo@taskflow.com
+- Password: Demo@12345
+
+================================================================================

@@ -83,7 +83,7 @@ router.get("/", async (req: AuthRequest, res) => {
     }
 
     if (tag && tag !== "all") {
-      and.push({ tags: { has: tag } });
+      and.push({ tags: { contains: tag } });
     }
 
     const now = new Date();
@@ -220,7 +220,7 @@ router.post("/", async (req: AuthRequest, res) => {
         description: body.description ?? "",
         status: statusFromApi(body.status),
         priority: priorityFromApi(body.priority),
-        tags: body.tags ?? [],
+        tags: JSON.stringify(body.tags ?? []),
         dueDate: body.dueDate ? new Date(body.dueDate) : null,
         creatorId: req.user!.id,
         assigneeId,
@@ -251,8 +251,9 @@ router.post("/", async (req: AuthRequest, res) => {
 
 router.patch("/:id", async (req: AuthRequest, res) => {
   try {
+    const taskId = req.params.id as string;
     const body = updateSchema.parse(req.body);
-    const existing = await prisma.task.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.task.findUnique({ where: { id: taskId } });
     if (!existing) return res.status(404).json({ message: "Task not found" });
 
     const isAdmin = req.user!.role === "ADMIN";
@@ -267,7 +268,7 @@ router.patch("/:id", async (req: AuthRequest, res) => {
     if (body.title !== undefined) data.title = body.title.trim();
     if (body.description !== undefined) data.description = body.description;
     if (body.priority !== undefined) data.priority = priorityFromApi(body.priority);
-    if (body.tags !== undefined) data.tags = body.tags;
+    if (body.tags !== undefined) data.tags = JSON.stringify(body.tags);
     if (body.dueDate !== undefined) data.dueDate = body.dueDate ? new Date(body.dueDate) : null;
     if (body.position !== undefined) data.position = body.position;
 
@@ -301,7 +302,7 @@ router.patch("/:id", async (req: AuthRequest, res) => {
     }
 
     const task = await prisma.task.update({
-      where: { id: req.params.id },
+      where: { id: taskId },
       data,
       include: taskInclude,
     });
@@ -353,16 +354,17 @@ router.patch("/:id", async (req: AuthRequest, res) => {
 
 router.patch("/:id/status", async (req: AuthRequest, res) => {
   try {
+    const taskId = req.params.id as string;
     const schema = z.object({
       status: z.enum(["todo", "doing", "done"]),
       position: z.number().int().optional(),
     });
     const body = schema.parse(req.body);
-    const existing = await prisma.task.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.task.findUnique({ where: { id: taskId } });
     if (!existing) return res.status(404).json({ message: "Task not found" });
 
     const task = await prisma.task.update({
-      where: { id: req.params.id },
+      where: { id: taskId },
       data: {
         status: statusFromApi(body.status),
         ...(body.position !== undefined ? { position: body.position } : {}),
@@ -394,7 +396,8 @@ router.patch("/:id/status", async (req: AuthRequest, res) => {
 });
 
 router.delete("/:id", async (req: AuthRequest, res) => {
-  const existing = await prisma.task.findUnique({ where: { id: req.params.id } });
+  const taskId = req.params.id as string;
+  const existing = await prisma.task.findUnique({ where: { id: taskId } });
   if (!existing) return res.status(404).json({ message: "Task not found" });
 
   const isAdmin = req.user!.role === "ADMIN";
@@ -406,7 +409,7 @@ router.delete("/:id", async (req: AuthRequest, res) => {
     return res.status(403).json({ message: "You can only delete your own tasks" });
   }
 
-  await prisma.task.delete({ where: { id: req.params.id } });
+  await prisma.task.delete({ where: { id: taskId } });
   return res.json({ message: "Task deleted" });
 });
 

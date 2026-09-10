@@ -21,33 +21,19 @@ A modern Trello-like task board built as **separate frontend and backend project
 
 Normal users who register go to **`/dashboard`** instead.
 
-## Connecting MongoDB Atlas (required)
+## Connecting MySQL Database
 
-This project uses **MongoDB Atlas** through Prisma.
+This project uses **MySQL** through Prisma.
 
-1. In Atlas → **Connect** → choose **Drivers** → **Node.js**.
-2. Copy the connection string. It looks like:
-
-```text
-mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/?retryWrites=true&w=majority
-```
-
-3. Replace `USERNAME` / `PASSWORD` with your DB user credentials.
-4. Add a database name before `?`, e.g. `/taskflow?`:
-
-```text
-mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/taskflow?retryWrites=true&w=majority
-```
-
-5. Put it in `backend/.env`:
+1. Ensure MySQL server (e.g. XAMPP, MySQL Workbench, or local MySQL Service) is running.
+2. Create a database named `taskflow`.
+3. Set your connection string in `backend/.env`:
 
 ```env
-DATABASE_URL="mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/taskflow?retryWrites=true&w=majority"
+DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/taskflow"
 ```
 
-6. In Atlas → **Network Access**, allow your IP (or `0.0.0.0/0` for development).
-
-7. Then run:
+4. Then run:
 
 ```bash
 cd backend
@@ -57,7 +43,7 @@ npm run db:seed
 npm run dev
 ```
 
-After that, users/tasks/notifications are stored in MongoDB Atlas.
+After that, users/tasks/notifications are stored in MySQL.
 
 ## Live demo credentials
 
@@ -73,7 +59,7 @@ Admins are **not** created via registration — only through the seed script / d
 | Layer | Stack |
 |-------|--------|
 | Frontend | Next.js (App Router), TypeScript, Tailwind CSS, @dnd-kit, Socket.IO client, Recharts |
-| Backend | Express.js, TypeScript, Prisma ORM, **MongoDB Atlas**, JWT, bcrypt, Socket.IO, Zod |
+| Backend | Express.js, TypeScript, Prisma ORM, **MySQL / PostgreSQL**, JWT, bcrypt, Socket.IO, Zod |
 | Architecture | Separate `frontend/` and `backend/` projects communicating over REST + WebSockets |
 
 ## Features
@@ -119,7 +105,7 @@ Admins are **not** created via registration — only through the seed script / d
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env → set MongoDB Atlas DATABASE_URL
+# Edit .env → set MySQL / PostgreSQL DATABASE_URL
 npm install
 npm run setup      # prisma generate + db push + seed admin/demo
 npm run dev        # http://localhost:5000
@@ -209,18 +195,29 @@ Then set `DATABASE_URL=postgresql://USER:PASS@HOST:5432/DB`.
 
 ## Application screenshots
 
-Add screenshots after deploying (board, filters, admin users, dark mode, stats):
+### 1. Kanban Task Board
+Full drag-and-drop Kanban board with real-time updates, status columns, priority badges, tags, search, and multi-criteria filters.
+![Kanban Board](Docs/Screenshorts/user%20dashboard.png)
 
-1. Capture the Kanban board with three columns
-2. Capture the filter bar and a task dialog
-3. Capture Stats and Admin Users tabs
-4. Place images in `docs/screenshots/` and embed them here:
+### 2. Analytics & Productivity Statistics
+Task status breakdown, priority distribution charts, and personal progress metrics.
+![User Stats](Docs/Screenshorts/user%20stats%20page.png)
 
-```markdown
-![Board](docs/screenshots/board.png)
-![Stats](docs/screenshots/stats.png)
-![Dark mode](docs/screenshots/dark.png)
-```
+### 3. Admin Dashboard
+System-wide metrics and visual charts tracking task completion and high-priority workloads across all users.
+![Admin Dashboard](Docs/Screenshorts/admin%20dashboard.png)
+
+### 4. Admin User Management
+User administration interface allowing admins to monitor activities, view user-specific task boards, and activate/deactivate accounts.
+![User Management](Docs/Screenshorts/user%20management.png)
+
+### 5. Authentication
+Secure sign-in and role-based redirecting for administrators and standard users.
+![Login Page](Docs/Screenshorts/login%20page.png)
+
+### 6. User Profile & Security Settings
+User settings for updating display name, avatar, and password credentials.
+![User Profile](Docs/Screenshorts/user%20profile%20.png)
 
 ## Author
 

@@ -37,7 +37,8 @@ router.get("/assignable", async (_req, res) => {
 });
 
 router.get("/:id/tasks", requireAdmin, async (req, res) => {
-  const user = await prisma.user.findUnique({ where: { id: req.params.id } });
+  const targetId = req.params.id as string;
+  const user = await prisma.user.findUnique({ where: { id: targetId } });
   if (!user) return res.status(404).json({ message: "User not found" });
 
   const tasks = await prisma.task.findMany({
@@ -55,13 +56,14 @@ router.get("/:id/tasks", requireAdmin, async (req, res) => {
 });
 
 router.patch("/:id/active", requireAdmin, async (req: AuthRequest, res) => {
+  const targetId = req.params.id as string;
   const schema = z.object({ isActive: z.boolean() });
   try {
     const { isActive } = schema.parse(req.body);
-    if (req.params.id === req.user!.id && !isActive) {
+    if (targetId === req.user!.id && !isActive) {
       return res.status(400).json({ message: "You cannot deactivate yourself" });
     }
-    const target = await prisma.user.findUnique({ where: { id: req.params.id } });
+    const target = await prisma.user.findUnique({ where: { id: targetId } });
     if (!target) return res.status(404).json({ message: "User not found" });
     if (target.role === "ADMIN" && !isActive) {
       const adminCount = await prisma.user.count({ where: { role: "ADMIN", isActive: true } });
@@ -70,7 +72,7 @@ router.patch("/:id/active", requireAdmin, async (req: AuthRequest, res) => {
       }
     }
     const user = await prisma.user.update({
-      where: { id: req.params.id },
+      where: { id: targetId },
       data: { isActive },
     });
     return res.json({ user: serializeUser(user) });
