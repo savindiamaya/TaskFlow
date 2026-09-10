@@ -3,7 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  // PostgreSQL for Vercel + Neon (free). Local MySQL users: keep a Neon URL in .env too.
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

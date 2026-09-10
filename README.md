@@ -2,11 +2,28 @@
 
 A modern Trello-like task board built as **separate frontend and backend projects**, with role-based access, drag-and-drop status columns, advanced filtering, notifications, dark mode, and dashboard analytics.
 
-## How to log in as Admin
+## Live demo
+
+| Item | URL |
+|------|-----|
+| Frontend | _Deploy to Vercel — see [Deployment](#deployment)_ |
+| Backend API | _Deploy to Render — see [Deployment](#deployment)_ |
+| Health check | `GET /api/health` on the backend URL |
+
+### Demo credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin (seeded) | `admin@taskflow.com` | `Admin@12345` |
+| User (seeded) | `demo@taskflow.com` | `Demo@12345` |
+
+Admins are **not** created via registration — only through the seed script / database.
+
+## How to log in as Admin (local)
 
 1. Make sure the backend was seeded (`npm run setup` inside `backend/`).
 2. Open http://localhost:3000/auth
-3. Sign in with the **seeded admin** account (admins cannot register from the UI):
+3. Sign in with the **seeded admin** account:
 
 | Field | Value |
 |-------|-------|
@@ -21,45 +38,21 @@ A modern Trello-like task board built as **separate frontend and backend project
 
 Normal users who register go to **`/dashboard`** instead.
 
-## Connecting MySQL Database
+## Project overview
 
-This project uses **MySQL** through Prisma.
+TaskFlow is a full-stack internship assignment app:
 
-1. Ensure MySQL server (e.g. XAMPP, MySQL Workbench, or local MySQL Service) is running.
-2. Create a database named `taskflow`.
-3. Set your connection string in `backend/.env`:
-
-```env
-DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/taskflow"
-```
-
-4. Then run:
-
-```bash
-cd backend
-npx prisma generate
-npx prisma db push
-npm run db:seed
-npm run dev
-```
-
-After that, users/tasks/notifications are stored in MySQL.
-
-## Live demo credentials
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin (seeded) | `admin@taskflow.com` | `Admin@12345` |
-| User (seeded) | `demo@taskflow.com` | `Demo@12345` |
-
-Admins are **not** created via registration — only through the seed script / database.
+- **Users** manage personal Kanban boards (create, claim, filter, and drag tasks).
+- **Admins** oversee all users and tasks, activate/deactivate accounts, and reassign work.
+- **Realtime** Socket.IO notifications cover assignment, status changes, and due-date reminders.
+- **Security** uses JWT auth, bcrypt password hashing, Zod validation, and role-based route guards.
 
 ## Technology stack
 
 | Layer | Stack |
 |-------|--------|
 | Frontend | Next.js (App Router), TypeScript, Tailwind CSS, @dnd-kit, Socket.IO client, Recharts |
-| Backend | Express.js, TypeScript, Prisma ORM, **MySQL / PostgreSQL**, JWT, bcrypt, Socket.IO, Zod |
+| Backend | Express.js, TypeScript, Prisma ORM, **MySQL**, JWT, bcrypt, Socket.IO, Zod |
 | Architecture | Separate `frontend/` and `backend/` projects communicating over REST + WebSockets |
 
 ## Features
@@ -86,11 +79,15 @@ Admins are **not** created via registration — only through the seed script / d
 ## Project structure
 
 ```
-├── backend/          # Express REST API + Socket.IO
-│   ├── prisma/       # Schema & SQLite DB
-│   └── src/          # Routes, middleware, services
-├── frontend/         # Next.js UI
+├── backend/                 # Express REST API + Socket.IO
+│   ├── prisma/              # Prisma schema (MySQL)
+│   ├── src/                 # Routes, middleware, services
+│   └── .env.example
+├── frontend/                # Next.js UI
 │   └── src/
+├── Docs/Screenshorts/       # Application screenshots
+├── render.yaml              # Render Blueprint for the API
+├── submission.txt           # Final assignment submission details
 └── README.md
 ```
 
@@ -99,17 +96,36 @@ Admins are **not** created via registration — only through the seed script / d
 ### Prerequisites
 - Node.js 20+
 - npm
+- MySQL 8+ (XAMPP, MySQL Workbench, or local MySQL service)
 
 ### 1. Backend
 
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env → set MySQL / PostgreSQL DATABASE_URL
+# Edit .env → set MySQL DATABASE_URL (see below)
 npm install
 npm run setup      # prisma generate + db push + seed admin/demo
 npm run dev        # http://localhost:5000
 ```
+
+### Connecting MySQL Database
+
+1. Ensure MySQL is running.
+2. Create a database named `taskflow`.
+3. Set your connection string in `backend/.env`:
+
+```env
+DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/taskflow"
+```
+
+XAMPP with empty root password:
+
+```env
+DATABASE_URL="mysql://root:@localhost:3306/taskflow"
+```
+
+4. Then run `npm run setup` (or `npx prisma generate && npx prisma db push && npm run db:seed`).
 
 ### 2. Frontend
 
@@ -129,7 +145,7 @@ Open [http://localhost:3000](http://localhost:3000) and sign in with the demo cr
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `PORT` | API port | `5000` |
-| `DATABASE_URL` | Prisma DB URL | `file:./dev.db` |
+| `DATABASE_URL` | Prisma MySQL URL | `mysql://root:@localhost:3306/taskflow` |
 | `JWT_SECRET` | Secret for signing JWTs | long random string |
 | `JWT_EXPIRES_IN` | Token lifetime | `7d` |
 | `CLIENT_URL` | Allowed frontend origin(s), comma-separated | `http://localhost:3000` |
@@ -144,10 +160,13 @@ Open [http://localhost:3000](http://localhost:3000) and sign in with the demo cr
 | `NEXT_PUBLIC_API_URL` | Backend REST base URL | `http://localhost:5000/api` |
 | `NEXT_PUBLIC_SOCKET_URL` | Socket.IO server URL | `http://localhost:5000` |
 
+See also `backend/.env.example` and `frontend/.env.example`.
+
 ## API overview
 
 | Method | Endpoint | Access | Description |
 |--------|----------|--------|-------------|
+| GET | `/api/health` | Public | Health check |
 | POST | `/api/auth/register` | Public | Register normal user |
 | POST | `/api/auth/login` | Public | Login |
 | GET | `/api/auth/me` | Auth | Current user |
@@ -166,32 +185,61 @@ Open [http://localhost:3000](http://localhost:3000) and sign in with the demo cr
 
 ## Deployment
 
-Deploy **frontend** and **backend** separately.
+Deploy **frontend** and **backend** separately so both are publicly reachable and the frontend talks to the live API.
 
-### Backend (Render / Railway / Fly.io)
-1. Set root to `backend`
-2. Build: `npm install && npx prisma generate && npm run build`
-3. Start: `npx prisma db push && npm run db:seed && npm start`
-4. For production, switch Prisma `provider` to `postgresql` and set `DATABASE_URL` to your Postgres URL
-5. Set `CLIENT_URL` to your deployed frontend URL and a strong `JWT_SECRET`
+### 1. Cloud MySQL (Aiven free tier recommended)
 
-### Frontend (Vercel)
-1. Set root to `frontend`
-2. Set env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL` pointing at the deployed API
-3. Deploy
+1. Create a free [Aiven](https://aiven.io) MySQL service.
+2. Copy the Service URI, e.g.  
+   `mysql://avnadmin:PASSWORD@HOST:PORT/defaultdb?ssl-mode=REQUIRED`
 
-### Production PostgreSQL tip
+### 2. Backend on Render
 
-In `backend/prisma/schema.prisma`:
+1. Go to [Render](https://render.com) → **New Web Service** → connect `savindiamaya/TaskFlow`.
+2. Settings:
+   - **Root Directory:** `backend`
+   - **Runtime:** Node
+   - **Build Command:** `npm install && npx prisma generate && npm run build`
+   - **Start Command:** `npx prisma db push && npm run db:seed && npm start`
+3. Environment variables:
 
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
+| Key | Value |
+|-----|--------|
+| `DATABASE_URL` | Aiven MySQL URI |
+| `PORT` | `10000` (or Render’s assigned port — Render sets `PORT` automatically) |
+| `JWT_SECRET` | strong random string |
+| `JWT_EXPIRES_IN` | `7d` |
+| `CLIENT_URL` | your Vercel frontend URL (update after frontend deploy) |
+| `ADMIN_EMAIL` | `admin@taskflow.com` |
+| `ADMIN_PASSWORD` | `Admin@12345` |
+| `ADMIN_NAME` | `System Admin` |
 
-Then set `DATABASE_URL=postgresql://USER:PASS@HOST:5432/DB`.
+4. Deploy. Note the API URL, e.g. `https://taskflow-api.onrender.com`.
+
+You can also use the Blueprint in `render.yaml` at the repo root (set `DATABASE_URL` and `CLIENT_URL` when prompted).
+
+> **Why Render (not Vercel) for the API?** Socket.IO and the hourly due-date job need a long-running Node process. Serverless is a poor fit.
+
+### 3. Frontend on Vercel
+
+1. Go to [Vercel](https://vercel.com) → **Add New Project** → import `savindiamaya/TaskFlow`.
+2. **Root Directory:** `frontend`
+3. Environment variables:
+
+| Key | Value |
+|-----|--------|
+| `NEXT_PUBLIC_API_URL` | `https://YOUR-RENDER-URL/api` |
+| `NEXT_PUBLIC_SOCKET_URL` | `https://YOUR-RENDER-URL` |
+
+4. Deploy. Note the frontend URL, e.g. `https://taskflow.vercel.app`.
+5. Update Render `CLIENT_URL` to that frontend URL and redeploy the API if needed.
+
+### Production checklist
+
+- [ ] Backend `/api/health` returns `{ "status": "ok" }`
+- [ ] Frontend login works with admin credentials
+- [ ] Creating/moving a task persists after refresh
+- [ ] CORS allows the Vercel origin (`CLIENT_URL`)
 
 ## Application screenshots
 
@@ -219,6 +267,12 @@ Secure sign-in and role-based redirecting for administrators and standard users.
 User settings for updating display name, avatar, and password credentials.
 ![User Profile](Docs/Screenshorts/user%20profile%20.png)
 
+## Final submission
+
+See [`submission.txt`](submission.txt) for the assignment hand-in file (GitHub link, live URLs, admin credentials, and contact info).
+
 ## Author
 
-**Savindi Amaya** — [github.com/savindiamaya](https://github.com/savindiamaya)
+**Savindi Amaya**  
+GitHub: [github.com/savindiamaya](https://github.com/savindiamaya)  
+Email: a.savindiamaya@gmail.com

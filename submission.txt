@@ -5,7 +5,7 @@ TASKFLOW - ASSIGNMENT FINAL SUBMISSION
 1. Candidate Contact Information:
 ----------------------------------
 - Full Name: Savindi Amaya
-- Email: [Your Email Address Here]
+- Email: a.savindiamaya@gmail.com
 - Phone: [Your Phone Number Here]
 - GitHub Profile: https://github.com/savindiamaya
 - LinkedIn: [Your LinkedIn Profile URL Here]
@@ -13,14 +13,13 @@ TASKFLOW - ASSIGNMENT FINAL SUBMISSION
 
 2. GitHub Repository URL:
 --------------------------
-- Repository Link: https://github.com/savindiamaya/TaskFlow.git
-  (Or your new GitHub repo link if you push to another account)
+- Repository Link: https://github.com/savindiamaya/TaskFlow
 
 
 3. Live Deployed Application URLs:
 -----------------------------------
-- Frontend (Vercel): [Your Deployed Frontend URL e.g. https://taskflow-app.vercel.app]
-- Backend API (Render): [Your Deployed Backend URL e.g. https://taskflow-api.onrender.com]
+- Frontend (Vercel): [PENDING — deploy frontend/ on Vercel after backend is live]
+- Backend API (Render): [PENDING — deploy via Render Blueprint (render.yaml) + Aiven MySQL]
 
 
 4. Administrator Login Credentials:
@@ -35,5 +34,13 @@ TASKFLOW - ASSIGNMENT FINAL SUBMISSION
 - Role: Standard User
 - Email: demo@taskflow.com
 - Password: Demo@12345
+
+================================================================================
+NOTES FOR REVIEWER
+================================================================================
+- Local setup, README, screenshots, env docs, and seed admin account are complete.
+- Live URLs will be filled immediately after cloud deploy (Aiven MySQL + Render API + Vercel UI).
+- Frontend must use NEXT_PUBLIC_API_URL / NEXT_PUBLIC_SOCKET_URL pointing at the Render API.
+- Backend CLIENT_URL must include the Vercel frontend origin for CORS + Socket.IO.
 
 ================================================================================

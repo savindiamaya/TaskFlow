@@ -15,9 +15,16 @@ export function useNotifications(enabled: boolean) {
       .catch(() => {});
 
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
-    const socket: Socket = io(socketUrl, { auth: { token: getToken() } });
+    const socket: Socket = io(socketUrl, {
+      auth: { token: getToken() },
+      transports: ["websocket", "polling"],
+      reconnectionAttempts: 3,
+    });
     socket.on("notification", (n: NotificationItem) => {
       setNotifications((prev) => [n, ...prev]);
+    });
+    socket.on("connect_error", () => {
+      // REST notifications still work when Socket.IO is unavailable (e.g. Vercel serverless)
     });
     return () => {
       socket.disconnect();

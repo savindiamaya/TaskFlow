@@ -1,0 +1,29 @@
+# Render Blueprint — New → Blueprint → connect savindiamaya/TaskFlow
+# Set DATABASE_URL (Aiven MySQL) and CLIENT_URL (Vercel frontend) when prompted.
+
+services:
+  - type: web
+    name: taskflow-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma db push && npm run db:seed && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: "7d"
+      - key: CLIENT_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@taskflow.com
+      - key: ADMIN_PASSWORD
+        value: Admin@12345
+      - key: ADMIN_NAME
+        value: System Admin
