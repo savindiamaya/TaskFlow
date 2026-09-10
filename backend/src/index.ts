@@ -72,7 +72,11 @@ setInterval(() => {
 }, 60 * 60 * 1000);
 
 const PORT = Number(process.env.PORT) || 5000;
-server.listen(PORT, () => {
-  console.log(`TaskFlow API listening on http://localhost:${PORT}`);
-  void checkDueDateReminders(io);
-});
+if (!process.env.VERCEL) {
+  server.listen(PORT, () => {
+    console.log(`TaskFlow API listening on http://localhost:${PORT}`);
+    void checkDueDateReminders(io);
+  });
+}
+
+export default app;
