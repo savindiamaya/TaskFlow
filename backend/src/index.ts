@@ -33,7 +33,11 @@ app.use(
 app.use(express.json());
 app.use(
   "/uploads",
-  express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "../uploads"))
+  express.static(
+    process.env.VERCEL
+      ? path.join("/tmp", "taskflow-uploads")
+      : path.join(path.dirname(fileURLToPath(import.meta.url)), "../uploads")
+  )
 );
 
 app.get("/api/health", (_req, res) => {

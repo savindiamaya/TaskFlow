@@ -1,0 +1,38 @@
+To: lesstaxihr@gmail.com
+Subject: Software Engineer Intern Technical Assignment Submission — Savindi Amaya
+
+--------------------------------------------------------------------------------
+Copy everything below this line into your email reply:
+--------------------------------------------------------------------------------
+
+Dear Hiring Team,
+
+Please find my completed Software Engineer Intern technical assignment submission below.
+
+Candidate: Savindi Amaya
+Email: a.savindiamaya@gmail.com
+Phone: [ADD YOUR PHONE NUMBER]
+GitHub: https://github.com/savindiamaya
+
+1) GitHub Repository
+https://github.com/savindiamaya/TaskFlow
+
+2) Deployed Application
+Frontend: https://frontend-lake-phi-25.vercel.app
+Backend API: https://backend-theta-liard-23.vercel.app
+Health: https://backend-theta-liard-23.vercel.app/api/health
+
+3) Administrator Login
+Email: admin@taskflow.com
+Password: Admin@12345
+
+Demo user (optional): demo@taskflow.com / Demo@12345
+
+The repository README includes the project overview, technology stack, setup
+instructions, environment variables, deployment details, and application screenshots.
+
+Thank you for your consideration.
+
+Best regards,
+Savindi Amaya
+a.savindiamaya@gmail.com

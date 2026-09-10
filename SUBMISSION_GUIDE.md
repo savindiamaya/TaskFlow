@@ -1,60 +1,28 @@
-# TaskFlow — Finish live deployment (පහත steps 3කින් deploy කරන්න)
+# Submission status (for you — do not email this file)
 
-Documentation, screenshots, seed credentials, and `submission.txt` template are ready.
-**Only live URLs are left** — cloud accounts must be created in the browser (no tokens on this machine).
+## Checklist vs assignment
 
----
+| Requirement | Status |
+|-------------|--------|
+| USER + ADMIN roles | Done |
+| User register/login/create/self-assign/manage own | Done |
+| Admin via seed only (not registration) | Done |
+| Admin view all + reassign anyone | Done |
+| Task fields + timestamps | Done |
+| Drag-drop To Do / Doing / Done + DB persist | Done |
+| JWT + bcrypt + env secrets + backend RBAC | Done |
+| Separate frontend + backend | Done |
+| REST APIs | Done |
+| User + admin dashboards | Done |
+| Database schema/relations | Done (PostgreSQL / Neon) |
+| Both apps deployed + connected | Done (Vercel) |
+| README complete + screenshots | Done |
+| submission.txt | Done (add phone) |
 
-## A) Free MySQL — Aiven (5 minutes)
+## Before you send the email
 
-1. Open https://aiven.io → Sign up (GitHub OK).
-2. Create service → **MySQL** → **Free** plan.
-3. Copy **Service URI** (looks like `mysql://avnadmin:...@...aivencloud.com:..../defaultdb?ssl-mode=REQUIRED`).
-
----
-
-## B) Backend — Render (5 minutes)
-
-1. Open https://render.com → Sign up with GitHub.
-2. **New** → **Blueprint** → select `savindiamaya/TaskFlow` (uses root `render.yaml`).
-   - Or **New Web Service** → same repo → Root Directory = `backend`.
-3. Build: `npm install && npx prisma generate && npm run build`  
-   Start: `npx prisma db push && npm run db:seed && npm start`
-4. Set env:
-   - `DATABASE_URL` = Aiven URI from A
-   - `CLIENT_URL` = `*` temporarily (later set to Vercel URL)
-   - `JWT_SECRET` = any long random string
-   - `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` = defaults in README
-5. Deploy → copy URL e.g. `https://taskflow-api.onrender.com`
-6. Test: open `https://YOUR-API/api/health`
-
----
-
-## C) Frontend — Vercel (5 minutes)
-
-1. Open https://vercel.com → Sign up with GitHub.
-2. **Add New Project** → `savindiamaya/TaskFlow` → Root Directory = `frontend`.
-3. Env:
-   - `NEXT_PUBLIC_API_URL` = `https://YOUR-API/api`
-   - `NEXT_PUBLIC_SOCKET_URL` = `https://YOUR-API`
-4. Deploy → copy URL e.g. `https://taskflow.vercel.app`
-5. On Render, set `CLIENT_URL` = that Vercel URL → Redeploy API.
-
----
-
-## D) Fill `submission.txt`
-
-Replace the PENDING lines with:
-
-- Frontend (Vercel): `https://...`
-- Backend API (Render): `https://...`
-- Phone / LinkedIn (your real contact)
-
-Email is already filled: `a.savindiamaya@gmail.com`
-
----
-
-## Admin login (for reviewers)
-
-- Email: `admin@taskflow.com`
-- Password: `Admin@12345`
+1. Open `EMAIL_TO_SEND.txt`
+2. Replace `[ADD YOUR PHONE NUMBER]`
+3. Reply to the assignment email from **lesstaxihr@gmail.com** (or send To that address)
+4. Paste the email body and attach `submission.txt` if they ask for a text file
+5. Claim Neon DB so demo stays live: https://neon.new/claim/01a08ab3-57ef-727d-a965-8b2fc760840d

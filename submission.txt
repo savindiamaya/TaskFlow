@@ -1,46 +1,44 @@
 ================================================================================
-TASKFLOW - ASSIGNMENT FINAL SUBMISSION
+TASKFLOW — FINAL SUBMISSION
+Software Engineer Intern Technical Assignment
 ================================================================================
 
-1. Candidate Contact Information:
+1. Candidate Contact Information
+--------------------------------
+Full Name:        Savindi Amaya
+Email:            a.savindiamaya@gmail.com
+Phone:            [ADD YOUR PHONE NUMBER]
+GitHub Profile:   https://github.com/savindiamaya
+LinkedIn:         [ADD YOUR LINKEDIN URL IF ANY]
+
+
+2. GitHub Repository
+--------------------
+https://github.com/savindiamaya/TaskFlow
+
+
+3. Deployed Application URLs
+----------------------------
+Frontend (live app):  https://frontend-lake-phi-25.vercel.app
+Backend API:          https://backend-theta-liard-23.vercel.app
+API health check:     https://backend-theta-liard-23.vercel.app/api/health
+
+
+4. Administrator Login Credentials
 ----------------------------------
-- Full Name: Savindi Amaya
-- Email: a.savindiamaya@gmail.com
-- Phone: [Your Phone Number Here]
-- GitHub Profile: https://github.com/savindiamaya
-- LinkedIn: [Your LinkedIn Profile URL Here]
+Email:     admin@taskflow.com
+Password:  Admin@12345
+
+(Optional demo user)
+Email:     demo@taskflow.com
+Password:  Demo@12345
 
 
-2. GitHub Repository URL:
---------------------------
-- Repository Link: https://github.com/savindiamaya/TaskFlow
-
-
-3. Live Deployed Application URLs:
------------------------------------
-- Frontend (Vercel): [PENDING — deploy frontend/ on Vercel after backend is live]
-- Backend API (Render): [PENDING — deploy via Render Blueprint (render.yaml) + Aiven MySQL]
-
-
-4. Administrator Login Credentials:
-------------------------------------
-- Role: Administrator
-- Email: admin@taskflow.com
-- Password: Admin@12345
-
-
-5. Demo User Credentials:
---------------------------
-- Role: Standard User
-- Email: demo@taskflow.com
-- Password: Demo@12345
-
-================================================================================
-NOTES FOR REVIEWER
-================================================================================
-- Local setup, README, screenshots, env docs, and seed admin account are complete.
-- Live URLs will be filled immediately after cloud deploy (Aiven MySQL + Render API + Vercel UI).
-- Frontend must use NEXT_PUBLIC_API_URL / NEXT_PUBLIC_SOCKET_URL pointing at the Render API.
-- Backend CLIENT_URL must include the Vercel frontend origin for CORS + Socket.IO.
+5. Brief Summary
+----------------
+Full-stack Trello-like Kanban app with separate Next.js frontend and Express/
+Prisma/PostgreSQL backend. Features: JWT auth, USER/ADMIN roles (admin seeded),
+drag-and-drop To Do / Doing / Done board, task CRUD with assignment rules,
+admin user management, and live deployment on Vercel.
 
 ================================================================================

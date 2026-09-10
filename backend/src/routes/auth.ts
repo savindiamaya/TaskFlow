@@ -14,8 +14,15 @@ import type { AuthRequest } from "../types.js";
 const router = Router();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const uploadsRoot = path.join(__dirname, "../../uploads/avatars");
-fs.mkdirSync(uploadsRoot, { recursive: true });
+const uploadsRoot = process.env.VERCEL
+  ? path.join("/tmp", "taskflow-uploads", "avatars")
+  : path.join(__dirname, "../../uploads/avatars");
+
+try {
+  fs.mkdirSync(uploadsRoot, { recursive: true });
+} catch {
+  // Serverless filesystems may be read-only until /tmp is used
+}
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -173,7 +180,9 @@ router.post("/avatar", authenticate, (req: AuthRequest, res) => {
     try {
       const existing = await prisma.user.findUnique({ where: { id: req.user!.id } });
       if (existing?.avatarUrl?.startsWith("/uploads/")) {
-        const oldPath = path.join(__dirname, "../..", existing.avatarUrl);
+        const oldPath = process.env.VERCEL
+          ? path.join("/tmp", "taskflow-uploads", existing.avatarUrl.replace(/^\/uploads\//, ""))
+          : path.join(__dirname, "../..", existing.avatarUrl);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
 
@@ -196,7 +205,9 @@ router.delete("/avatar", authenticate, async (req: AuthRequest, res) => {
     if (!existing) return res.status(404).json({ message: "User not found" });
 
     if (existing.avatarUrl?.startsWith("/uploads/")) {
-      const oldPath = path.join(__dirname, "../..", existing.avatarUrl);
+      const oldPath = process.env.VERCEL
+        ? path.join("/tmp", "taskflow-uploads", existing.avatarUrl.replace(/^\/uploads\//, ""))
+        : path.join(__dirname, "../..", existing.avatarUrl);
       if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
     }
 

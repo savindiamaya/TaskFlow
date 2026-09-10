@@ -102,6 +102,18 @@ router.get("/", async (req: AuthRequest, res) => {
 
     if (and.length) where.AND = and;
 
+    // Normal users: own tasks + unassigned (so they can claim). Admins see all.
+    if (req.user!.role !== "ADMIN") {
+      const scope: Prisma.TaskWhereInput = {
+        OR: [
+          { creatorId: req.user!.id },
+          { assigneeId: req.user!.id },
+          { assigneeId: null },
+        ],
+      };
+      where.AND = [...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), scope];
+    }
+
     let orderBy: Prisma.TaskOrderByWithRelationInput = { createdAt: "desc" };
     if (sort === "oldest") orderBy = { createdAt: "asc" };
     else if (sort === "due") orderBy = { dueDate: "asc" };
@@ -362,6 +374,17 @@ router.patch("/:id/status", async (req: AuthRequest, res) => {
     const body = schema.parse(req.body);
     const existing = await prisma.task.findUnique({ where: { id: taskId } });
     if (!existing) return res.status(404).json({ message: "Task not found" });
+
+    const isAdmin = req.user!.role === "ADMIN";
+    const canMove =
+      isAdmin ||
+      existing.creatorId === req.user!.id ||
+      existing.assigneeId === req.user!.id;
+    if (!canMove) {
+      return res.status(403).json({
+        message: "You can only change status on tasks you created or are assigned to",
+      });
+    }
 
     const task = await prisma.task.update({
       where: { id: taskId },

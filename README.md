@@ -6,9 +6,9 @@ A modern Trello-like task board built as **separate frontend and backend project
 
 | Item | URL |
 |------|-----|
-| Frontend | _Deploy to Vercel — see [Deployment](#deployment)_ |
-| Backend API | _Deploy to Render — see [Deployment](#deployment)_ |
-| Health check | `GET /api/health` on the backend URL |
+| Frontend | https://frontend-lake-phi-25.vercel.app |
+| Backend API | https://backend-theta-liard-23.vercel.app |
+| Health check | https://backend-theta-liard-23.vercel.app/api/health |
 
 ### Demo credentials
 
@@ -52,7 +52,7 @@ TaskFlow is a full-stack internship assignment app:
 | Layer | Stack |
 |-------|--------|
 | Frontend | Next.js (App Router), TypeScript, Tailwind CSS, @dnd-kit, Socket.IO client, Recharts |
-| Backend | Express.js, TypeScript, Prisma ORM, **MySQL**, JWT, bcrypt, Socket.IO, Zod |
+| Backend | Express.js, TypeScript, Prisma ORM, **PostgreSQL (Neon)**, JWT, bcrypt, Socket.IO, Zod |
 | Architecture | Separate `frontend/` and `backend/` projects communicating over REST + WebSockets |
 
 ## Features
@@ -80,13 +80,13 @@ TaskFlow is a full-stack internship assignment app:
 
 ```
 ├── backend/                 # Express REST API + Socket.IO
-│   ├── prisma/              # Prisma schema (MySQL)
+│   ├── prisma/              # Prisma schema (PostgreSQL)
 │   ├── src/                 # Routes, middleware, services
 │   └── .env.example
 ├── frontend/                # Next.js UI
 │   └── src/
 ├── Docs/Screenshorts/       # Application screenshots
-├── render.yaml              # Render Blueprint for the API
+├── render.yaml              # Optional Render Blueprint
 ├── submission.txt           # Final assignment submission details
 └── README.md
 ```
@@ -96,36 +96,29 @@ TaskFlow is a full-stack internship assignment app:
 ### Prerequisites
 - Node.js 20+
 - npm
-- MySQL 8+ (XAMPP, MySQL Workbench, or local MySQL service)
+- A PostgreSQL database (Neon free tier works for local + production)
 
 ### 1. Backend
 
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env → set MySQL DATABASE_URL (see below)
+# Edit .env → set PostgreSQL DATABASE_URL (Neon connection string)
 npm install
 npm run setup      # prisma generate + db push + seed admin/demo
 npm run dev        # http://localhost:5000
 ```
 
-### Connecting MySQL Database
+### Connecting PostgreSQL (Neon)
 
-1. Ensure MySQL is running.
-2. Create a database named `taskflow`.
-3. Set your connection string in `backend/.env`:
-
-```env
-DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/taskflow"
-```
-
-XAMPP with empty root password:
+1. Create a free Neon project at https://console.neon.tech (or use an existing Postgres URL).
+2. Set your connection string in `backend/.env`:
 
 ```env
-DATABASE_URL="mysql://root:@localhost:3306/taskflow"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/neondb?sslmode=require"
 ```
 
-4. Then run `npm run setup` (or `npx prisma generate && npx prisma db push && npm run db:seed`).
+3. Then run `npm run setup` (or `npx prisma generate && npx prisma db push && npm run db:seed`).
 
 ### 2. Frontend
 
@@ -145,7 +138,7 @@ Open [http://localhost:3000](http://localhost:3000) and sign in with the demo cr
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `PORT` | API port | `5000` |
-| `DATABASE_URL` | Prisma MySQL URL | `mysql://root:@localhost:3306/taskflow` |
+| `DATABASE_URL` | Prisma PostgreSQL URL | `postgresql://USER:PASS@HOST/neondb?sslmode=require` |
 | `JWT_SECRET` | Secret for signing JWTs | long random string |
 | `JWT_EXPIRES_IN` | Token lifetime | `7d` |
 | `CLIENT_URL` | Allowed frontend origin(s), comma-separated | `http://localhost:3000` |
@@ -185,61 +178,52 @@ See also `backend/.env.example` and `frontend/.env.example`.
 
 ## Deployment
 
-Deploy **frontend** and **backend** separately so both are publicly reachable and the frontend talks to the live API.
+Both apps are live on **Vercel** with a **Neon Postgres** database.
 
-### 1. Cloud MySQL (Aiven free tier recommended)
+| App | Vercel project | URL |
+|-----|----------------|-----|
+| Frontend | `frontend` | https://frontend-lake-phi-25.vercel.app |
+| Backend | `backend` | https://backend-theta-liard-23.vercel.app |
 
-1. Create a free [Aiven](https://aiven.io) MySQL service.
-2. Copy the Service URI, e.g.  
-   `mysql://avnadmin:PASSWORD@HOST:PORT/defaultdb?ssl-mode=REQUIRED`
+### Redeploy (CLI)
 
-### 2. Backend on Render
+```bash
+# Backend
+cd backend
+vercel --prod
 
-1. Go to [Render](https://render.com) → **New Web Service** → connect `savindiamaya/TaskFlow`.
-2. Settings:
-   - **Root Directory:** `backend`
-   - **Runtime:** Node
-   - **Build Command:** `npm install && npx prisma generate && npm run build`
-   - **Start Command:** `npx prisma db push && npm run db:seed && npm start`
-3. Environment variables:
+# Frontend (set API URLs)
+cd frontend
+vercel --prod -e NEXT_PUBLIC_API_URL=https://backend-theta-liard-23.vercel.app/api \
+  -e NEXT_PUBLIC_SOCKET_URL=https://backend-theta-liard-23.vercel.app \
+  -b NEXT_PUBLIC_API_URL=https://backend-theta-liard-23.vercel.app/api \
+  -b NEXT_PUBLIC_SOCKET_URL=https://backend-theta-liard-23.vercel.app
+```
 
-| Key | Value |
-|-----|--------|
-| `DATABASE_URL` | Aiven MySQL URI |
-| `PORT` | `10000` (or Render’s assigned port — Render sets `PORT` automatically) |
-| `JWT_SECRET` | strong random string |
-| `JWT_EXPIRES_IN` | `7d` |
-| `CLIENT_URL` | your Vercel frontend URL (update after frontend deploy) |
-| `ADMIN_EMAIL` | `admin@taskflow.com` |
-| `ADMIN_PASSWORD` | `Admin@12345` |
-| `ADMIN_NAME` | `System Admin` |
+### Environment variables (production)
 
-4. Deploy. Note the API URL, e.g. `https://taskflow-api.onrender.com`.
+**Backend:** `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_URL` (frontend origin), `ADMIN_*`  
+**Frontend:** `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL`
 
-You can also use the Blueprint in `render.yaml` at the repo root (set `DATABASE_URL` and `CLIENT_URL` when prompted).
+> Note: Vercel serverless does not keep long-lived Socket.IO connections; notifications still work over REST. Due-date reminders run via a daily Vercel Cron job.
 
-> **Why Render (not Vercel) for the API?** Socket.IO and the hourly due-date job need a long-running Node process. Serverless is a poor fit.
+### Local database
 
-### 3. Frontend on Vercel
+Use a Neon / Postgres `DATABASE_URL` in `backend/.env` (see `.env.example`), then:
 
-1. Go to [Vercel](https://vercel.com) → **Add New Project** → import `savindiamaya/TaskFlow`.
-2. **Root Directory:** `frontend`
-3. Environment variables:
-
-| Key | Value |
-|-----|--------|
-| `NEXT_PUBLIC_API_URL` | `https://YOUR-RENDER-URL/api` |
-| `NEXT_PUBLIC_SOCKET_URL` | `https://YOUR-RENDER-URL` |
-
-4. Deploy. Note the frontend URL, e.g. `https://taskflow.vercel.app`.
-5. Update Render `CLIENT_URL` to that frontend URL and redeploy the API if needed.
+```bash
+cd backend
+npm run setup
+npm run dev
+```
 
 ### Production checklist
 
-- [ ] Backend `/api/health` returns `{ "status": "ok" }`
-- [ ] Frontend login works with admin credentials
-- [ ] Creating/moving a task persists after refresh
-- [ ] CORS allows the Vercel origin (`CLIENT_URL`)
+- [x] Backend `/api/health` returns `{ "status": "ok" }`
+- [x] Frontend deployed and points at the live API
+- [x] Admin login works with seeded credentials
+- [ ] Claim the Neon DB before it expires (see `submission.txt`) so it stays permanent
+
 
 ## Application screenshots
 
